@@ -88,4 +88,5 @@ release: check ## Tag the manifest version and publish a GitHub release (gh)
 	@git rev-parse "v$(VERSION)" >/dev/null 2>&1 && { echo "tag v$(VERSION) already exists"; exit 1; } || true
 	git push
 	gh release create "v$(VERSION)" --title "v$(VERSION)" --generate-notes
+	@git rev-parse -q --verify "refs/tags/v$(VERSION)" >/dev/null || git fetch origin tag "v$(VERSION)"
 	@echo "released v$(VERSION)"
