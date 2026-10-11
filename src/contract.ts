@@ -16,6 +16,7 @@ export const TURN_EVENT = "esphome.echolocal_turn";
 export const AUDIO_ACTION = "turn_audio";
 export const RECORDINGS_ACTION = "recordings";
 export const LOGS_ACTION = "logs";
+export const TONE_WRITE_ACTION = "tone_write";
 
 export interface Turn {
   // Bumped when a field changes meaning. A version we do not know is ignored rather than guessed at.

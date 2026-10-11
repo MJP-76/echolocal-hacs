@@ -1,6 +1,8 @@
 import { LitElement, html, nothing, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
+import { actionOf } from "../audio";
+import { TONE_WRITE_ACTION } from "../contract";
 import { KEYS_READY } from "../keys";
 import { register } from "../nav";
 import { deviceName, findSatellites, resolve } from "../satellite";
@@ -217,7 +219,7 @@ export class EchoLocalTones extends LitElement {
     return findSatellites(this.hass)
       .map((device) => {
         const own = resolve(this.hass, device.id);
-        const select = own?.by.get("alerts_info")?.[0];
+        const select = own?.by.get("alerts_timer")?.[0];
         const entity = select ? this.hass.states[select.entity_id] : undefined;
         const options = (entity?.attributes?.options as string[] | undefined) ?? [];
         const states = [...(own?.by.values() ?? [])].flat().map((e) => this.hass.states[e.entity_id]);
@@ -225,7 +227,7 @@ export class EchoLocalTones extends LitElement {
           id: device.id,
           name: deviceName(device),
           online: states.some((s) => s && s.state !== "unavailable"),
-          supported: !!entity,
+          supported: !!actionOf(this.hass, device.name ?? "", TONE_WRITE_ACTION),
           tones: new Set(options),
         };
       })
