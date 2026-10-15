@@ -6,64 +6,81 @@
 
 [![hacs][hacs-badge]][hacs] [![Validate](https://github.com/ygelfand/echolocal-hacs/actions/workflows/validate.yml/badge.svg)](https://github.com/ygelfand/echolocal-hacs/actions/workflows/validate.yml)
 
-An optional companion to [EchoLocal](https://github.com/ygelfand/echolocal), the firmware that turns an Amazon
-Echo Dot Gen 2 into a Home Assistant voice satellite.
+An optional companion to [EchoLocal](https://github.com/ygelfand/echolocal), which turns Amazon Echo
+Dots and Echo Shows into Home Assistant voice satellites.
 
-EchoLocal speaks the ESPHome native API, so Home Assistant already adopts a device, gives
-it an assist satellite and an entity for every setting, with none of this installed. This adds integration things
-on top:
+EchoLocal speaks the ESPHome native API, so Home Assistant already adopts each device and gives it
+an assist satellite and an entity for every setting, without this integration. This adds:
 
-- **A custom card** for the device with settings and controls
-- **An optional dashboard** in the sidebar, with all the attached devices, as well as global settings
-- **Extra functionality** the ESPHome protocol has no way to express
-- more to come
+- **A card** for each device, with its settings and controls
+- **A dashboard** in the sidebar with every device, plus wake words, tones, turn history, groups
+  and health
+- **Features the ESPHome protocol can't express**: the wake word library, custom tones and turn
+  recordings
+
+![The EchoLocal dashboard with Echo Dots and Echo Shows](docs/images/dashboard.png)
 
 ## The card
 
-Mimics a real device hardware, with device color detection, clickable action buttons, controllable lights
+Drawn like the device: a Dot with its ring and light level, or a Show with its screen. Buttons for
+the microphone, playback, ring, screen, posters, camera and each assistant open their settings.
 
 <p align="center">
-  <img src="docs/images/card.png" width="420" alt="The EchoLocal card: a Dot seen from above, ring lit, showing the room at 201 lx">
+  <img src="docs/images/card.png" width="360" alt="The card for an Echo Dot: the device from above, ring lit, showing the room's light level">
+  <img src="docs/images/card-show.png" width="360" alt="The card for an Echo Show 8, with buttons for microphone, playback, screen, posters, camera and both assistants">
 </p>
 
-Additional popups for settings for individual components
-
 <p align="center">
-  <img src="docs/images/assistant.png" width="720" alt="The assistant popup: wake word, pipeline, sensitivity, timings, chime, reply delivery and how many recordings to keep">
+  <img src="docs/images/screen.png" width="560" alt="The Screen settings for an Echo Show 8: brightness, theme, style, dock side, visual, clock face and idle settings">
+  <img src="docs/images/assistant.png" width="720" alt="The assistant settings: wake word, pipeline, sensitivity, timings, chime, reply delivery and how many recordings to keep">
 </p>
 
 ## The dashboard
 
-Optional, in the sidebar, with every satellite on one page
+### Home
 
-![The EchoLocal dashboard with three Dots, rings lit, each showing its room's light level](docs/images/dashboard.png)
+Every device on one page, or grouped. A group bar mutes, rings or stops every device in it.
 
-## The activity view
+### Activity
 
-Every turn a device reports — what woke it, what it heard, what it answered, and how long each phase
-took. Where a recording was kept, it plays back what the microphones actually sent.
+Every turn a device reports: what woke it, what it heard, what it answered, and how long each phase
+took. Where a recording was kept, you can play back what the microphones sent.
 
 ![The activity view: turns with their wake word, transcript, reply and a bar of listen, think and reply times](docs/images/activity.png)
 
-A wake word library shared by every satellite. Drop in a `.tflite` to make it available to any
+### Wake words
+
+Which device listens for what, and a library shared by every device. Drop in a `.tflite` to make it
+available to all of them.
 
 ![The wake word tab: which device listens for what, and the library table](docs/images/wake-words.png)
 
+### Tones
+
+Upload a sound and assign it to devices for alerts, timers and wake chimes.
+
+![The tones tab: a custom chime assigned to four devices](docs/images/tones.png)
+
+### Health
+
+Version, update status, Wi‑Fi signal, CPU temperature, load, memory and disk for every device.
+
+![The health tab: one row per device](docs/images/health.png)
+
 ## Status
 
-**Active development. Everything here is subject to change** — entity names, the card's config, the layout
-of the dashboard, the lot.
+**Active development. Everything here is subject to change**, including entity names, the card's
+config and the dashboard layout.
 
 ## Installing
 
-Needs Home Assistant **2026.8** or newer, which is the first release carrying the aioesphomeapi that
-names entities for us.
+Needs Home Assistant **2026.8** or newer.
 
 ### HACS (custom repository)
 
 [![My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ygelfand&repository=echolocal-hacs&category=Integration)
 
-Click the badge to add this repo to HACS in one step, or add it manually:
+Click the badge to add this repo to HACS, or add it manually:
 
 1. HACS → ⋮ → **Custom repositories**
 2. Add `https://github.com/ygelfand/echolocal-hacs` with category **Integration**
@@ -75,10 +92,10 @@ Copy `custom_components/echolocal` into your Home Assistant `config/custom_compo
 
 ### Then
 
-Settings → **Devices & Services** → **Add Integration** → **EchoLocal**. There is nothing to configure but
-whether you want the dashboard in the sidebar.
+Settings → **Devices & Services** → **Add Integration** → **EchoLocal**. The only option is whether
+to show the dashboard in the sidebar.
 
-## Licence
+## License
 
 MIT.
 
