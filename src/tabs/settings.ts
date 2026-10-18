@@ -100,6 +100,7 @@ export class EchoLocalSettings extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
 
   @state() private known: HassLabel[] = [];
+  @state() private loaded = false;
   @state() private asked = false;
   @state() private scope = localStorage.getItem(SCOPE) ?? "";
   @state() private open: string | null = null;
@@ -189,8 +190,13 @@ export class EchoLocalSettings extends LitElement {
     const all = findSatellites(this.hass);
 
     // A deleted label leaves the remembered scope pointing at nothing; every device is the sensible
-    // place to land rather than an empty page.
-    if (this.scope && !this.known.some((one) => one.label_id === this.scope)) {
+    // place to land rather than an empty page. Checked only once the registry has answered, or the
+    // first render would read its own empty list as a deletion.
+    if (
+      this.loaded &&
+      this.scope &&
+      !this.known.some((one) => one.label_id === this.scope)
+    ) {
       this.scope = "";
       return all;
     }
@@ -480,5 +486,6 @@ export class EchoLocalSettings extends LitElement {
 
   private async load() {
     this.known = await labels(this.hass);
+    this.loaded = true;
   }
 }
