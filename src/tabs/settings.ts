@@ -2,13 +2,14 @@
 //
 // Every row is a setting the device popups already know, gathered across the devices in scope: the
 // value they agree on, or "mixed" where they do not. Changing one writes to every device in scope
-// that has it; an Echo somebody set on its own keeps that value and reads as "differs" until the next
-// global change takes it back. Nothing here is stored — the devices hold their own values, as ever.
+// that has it — except a device set to Local, whose own values take precedence and are never
+// written here; its pill on the card is what says so. Nothing here is stored — the devices hold
+// their own values, as ever.
 
 import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import { group, labels } from "../groups";
+import { group, isLocal, labels, LOCAL_READY } from "../groups";
 import { helpFor } from "../help";
 import { KEYS_READY } from "../keys";
 import { GLOBAL, named } from "../layout";
@@ -117,9 +118,10 @@ export class EchoLocalSettings extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    // Settings live under the names the integration answers with, and groups live in the label
-    // registry, so both are followed rather than read once.
+    // Settings live under the names the integration answers with, groups live in the label registry,
+    // and the Fleet/Local flag is a label too — all three are followed rather than read once.
     window.addEventListener(KEYS_READY, this.again);
+    window.addEventListener(LOCAL_READY, this.again);
     this.hass?.connection
       ?.subscribeEvents(() => this.load(), "label_registry_updated")
       .then((off) => (this.stop = off))
@@ -128,6 +130,7 @@ export class EchoLocalSettings extends LitElement {
 
   disconnectedCallback() {
     window.removeEventListener(KEYS_READY, this.again);
+    window.removeEventListener(LOCAL_READY, this.again);
     this.stop?.();
     window.clearTimeout(this.timer);
     super.disconnectedCallback();
@@ -392,7 +395,9 @@ export class EchoLocalSettings extends LitElement {
     ></ha-control-slider>`;
   }
 
-  // The per-device view: what each Echo holds, and which of them stand away from the rest.
+  // The per-device view: what each Echo holds, and which of them stand away from the rest. A device
+  // set to Local wears the Local badge whether or not its value differs — the badge says why this
+  // page cannot bring it into line, which is the whole point of it.
   private list(setting: Setting) {
     return html`<div class="who">
       ${setting.cells.map((cell) => {
@@ -403,10 +408,11 @@ export class EchoLocalSettings extends LitElement {
           </div>`;
         }
 
+        const local = isLocal(this.hass, cell.device);
         const dead = cell.state.state === "unavailable";
         const differs = !dead && setting.value !== null && cell.state.state !== setting.value;
 
-        return html`<div class="line" data-differs=${String(differs)}>
+        return html`<div class="line" data-differs=${String(differs && !local)}>
           <span class="name">${deviceName(cell.device)}</span>
           ${dead
             ? html`<span class="gone">unavailable</span>`
@@ -416,7 +422,11 @@ export class EchoLocalSettings extends LitElement {
               >
                 ${setting.secret ? "••••••" : cell.state.state}
               </button>`}
-          ${differs ? html`<span class="badge">differs</span>` : nothing}
+          ${local
+            ? html`<span class="badge local">Local</span>`
+            : differs
+              ? html`<span class="badge">differs</span>`
+              : nothing}
         </div>`;
       })}
     </div>`;
@@ -433,18 +443,24 @@ export class EchoLocalSettings extends LitElement {
       ?.attributes.icon ?? "mdi:tune";
   }
 
-  // One change, every device in scope that has the setting. Failures are counted rather than thrown,
-  // so one unreachable Dot does not stop the rest of the room from changing.
+  // One change, every device in scope that has the setting — except the ones set to Local, whose own
+  // values win and are left exactly as they are. Failures are counted rather than thrown, so one
+  // unreachable Dot does not stop the rest of the room from changing.
   private async apply(setting: Setting, value: string | number | boolean) {
     if (this.busy) return;
     this.busy = setting.key;
 
-    const cells = setting.cells.filter((cell) => cell.entityId && this.hass.states[cell.entityId]);
+    const present = setting.cells.filter(
+      (cell) => cell.entityId && this.hass.states[cell.entityId]
+    );
+    const fleet = present.filter((cell) => !isLocal(this.hass, cell.device));
+    const kept = present.length - fleet.length;
+
     let done = 0;
     let failed = 0;
 
     await Promise.all(
-      cells.map(async (cell) => {
+      fleet.map(async (cell) => {
         try {
           if (setting.domain === "switch") {
             await this.hass.callService("switch", value ? "turn_on" : "turn_off", {
@@ -468,14 +484,16 @@ export class EchoLocalSettings extends LitElement {
       })
     );
 
-    const skipped = setting.cells.length - cells.length;
-    this.said = failed
-      ? `${setting.label}: ${done} of ${done + failed} set`
-      : `${setting.label}: ${done} set${skipped ? `, ${skipped} without it` : ""}`;
+    const skipped = setting.cells.length - present.length;
+    const parts = [`${done} set`];
+    if (kept) parts.push(`${kept} Local kept`);
+    if (failed) parts.push(`${failed} failed`);
+    if (skipped) parts.push(`${skipped} without it`);
+    this.said = `${setting.label}: ${parts.join(", ")}`;
 
     this.busy = null;
     window.clearTimeout(this.timer);
-    this.timer = window.setTimeout(() => (this.said = ""), 4000);
+    this.timer = window.setTimeout(() => (this.said = ""), 5000);
   }
 
   private moreInfo(entityId: string) {

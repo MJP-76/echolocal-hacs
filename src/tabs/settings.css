@@ -278,10 +278,18 @@ ha-control-slider {
   color: var(--primary-color);
 }
 
+/* "differs" is a plain observation — the value simply is not the shared one. "Local" is the pill's
+   verdict, in the same amber the card wears, and it outranks the observation: this device is meant
+   to be different, and this page will not change it. */
 .badge {
   padding: 1px 8px;
   border-radius: 999px;
   font-size: 0.7rem;
+  background: color-mix(in srgb, var(--primary-text-color) 8%, transparent);
+  color: var(--secondary-text-color);
+}
+
+.badge.local {
   background: color-mix(in srgb, var(--warning-color, #ffa600) 15%, transparent);
   color: var(--warning-color, #ffa600);
 }
