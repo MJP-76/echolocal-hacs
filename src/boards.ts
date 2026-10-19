@@ -1,8 +1,9 @@
-export type Lens = "round" | "square";
+export type Lens = "round" | "square" | "wide";
 
 export type Look = { shape: "dot" } | { shape: "show"; lens: Lens; width: number };
 
 const LOOKS: Record<string, Look> = {
+  athena: { shape: "show", lens: "wide", width: 360 },
   biscuit: { shape: "dot" },
   checkers: { shape: "show", lens: "round", width: 300 },
   cronos: { shape: "show", lens: "square", width: 300 },
