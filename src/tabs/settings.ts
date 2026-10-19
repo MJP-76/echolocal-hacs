@@ -1,4 +1,4 @@
-// Settings: one page over every Echo, so a change is made once.
+// Fleet: one page over every Echo, so a change is made once.
 //
 // Every row is a setting the device popups already know, gathered across the devices in scope: the
 // value they agree on, or "mixed" where they do not. Changing one writes to every device in scope
@@ -21,11 +21,11 @@ import styles from "./settings.css";
 import pills from "../pills.css";
 
 register({
-  path: "settings",
-  title: "Settings",
+  path: "fleet",
+  title: "Fleet",
   icon: "mdi:tune-variant",
   element: "echolocal-settings",
-  order: 25,
+  order: 1,
   admin: true,
 });
 
