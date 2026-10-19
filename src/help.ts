@@ -16,11 +16,11 @@ const HELP: Record<string, string> = {
   microphone_noise_reduction:
     "Takes the steady part of the room — a fan, traffic, air conditioning — out of what the microphones heard. Try turning it on in a room with background noise.",
   microphone_sensitivity:
-    "How much louder than the room's own noise floor a sound has to be before the device treats it as somebody talking. Raise it in a noisy room to stop the device reacting to the room itself; lower it if quiet speech is missed.",
+    "How much louder than the room's background noise a sound has to be before the light ring and the on-screen listening animation react to it. Raise it if they react to the room itself; lower it if they miss quiet sounds.",
   room_level:
-    "How loud the room is right now, in decibels below full scale. Nothing to set — it is what the sensitivity is measured against, and watching it is how you pick a sensible one.",
+    "The loudest the room got since the last report, in decibels below full scale.",
   room_floor:
-    "The quietest the room has been recently, which is the baseline the device compares against. It drifts with the room, so a fridge switching on raises it rather than fooling the device.",
+    "The room's background noise, which the device learns as it listens. It follows the room, so a fridge switching on raises it.",
   mute_led_brightness:
     "How bright the red ring is while the microphones are cut. Dim is enough to see in a dark room without lighting it up.",
   mute_sound:

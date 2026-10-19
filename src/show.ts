@@ -166,10 +166,11 @@ function face(screen: Screen) {
 }
 
 function lens(shape: Lens, covered: boolean, tap: () => void) {
-  const hole =
-    shape === "round"
-      ? svg`<circle cx="0" cy="0" r="3.4"></circle>`
-      : svg`<rect x="-3.2" y="-3.2" width="6.4" height="6.4" rx="0.8"></rect>`;
+  const hole = {
+    round: svg`<circle cx="0" cy="0" r="3.4"></circle>`,
+    square: svg`<rect x="-3.2" y="-3.2" width="6.4" height="6.4" rx="0.8"></rect>`,
+    wide: svg`<rect x="-6" y="-2.8" width="12" height="5.6" rx="1.2"></rect>`,
+  }[shape];
 
   return svg`<g
     class="lens"
